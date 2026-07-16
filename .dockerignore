@@ -10,4 +10,3 @@ Dockerfile
 .idea/
 *.iml
 target/
-!target/*.jar
