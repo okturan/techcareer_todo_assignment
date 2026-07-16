@@ -124,7 +124,14 @@ class TodoApiIntegrationTests {
         mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.info.title").value("Todo API Documentation"))
-                .andExpect(jsonPath("$.paths['/api/todos']").exists());
+                .andExpect(jsonPath("$.paths['/api/todos']").exists())
+                .andExpect(jsonPath("$.paths['/api/todos'].post.responses['201']").exists())
+                .andExpect(jsonPath("$.paths['/api/todos'].post.responses['400']").exists())
+                .andExpect(jsonPath("$.paths['/api/todos'].post.responses['409']").exists())
+                .andExpect(jsonPath("$.paths['/api/todos'].post.responses['200']").doesNotExist())
+                .andExpect(jsonPath("$.paths['/api/todos/{id}'].delete.responses['204']").exists())
+                .andExpect(jsonPath("$.paths['/api/todos/{id}'].delete.responses['404']").exists())
+                .andExpect(jsonPath("$.paths['/api/todos/{id}'].delete.responses['200']").doesNotExist());
     }
 
     private long createTodo(String title, String details) throws Exception {
