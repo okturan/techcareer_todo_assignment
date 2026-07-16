@@ -103,42 +103,71 @@ function switchToEditMode(todoElement, id, title, details, completed) {
     const contentDiv = todoElement.querySelector('.todo-content');
     const actionsDiv = todoElement.querySelector('.todo-actions');
 
-    // Create edit form
-    contentDiv.innerHTML = `
-        <input type="text" class="edit-input" id="edit-title-${id}" value="${title}" />
-        <textarea class="edit-input details-textarea" id="edit-details-${id}">${details}</textarea>
-    `;
+    const titleInput = document.createElement('input');
+    titleInput.type = 'text';
+    titleInput.className = 'edit-input';
+    titleInput.id = `edit-title-${id}`;
+    titleInput.value = title;
 
-    // Update actions
-    actionsDiv.innerHTML = `
-        <button class="save-btn" data-id="${id}" data-completed="${completed}">Save</button>
-        <button class="cancel-btn">Cancel</button>
-    `;
+    const detailsInput = document.createElement('textarea');
+    detailsInput.className = 'edit-input details-textarea';
+    detailsInput.id = `edit-details-${id}`;
+    detailsInput.value = details;
+
+    contentDiv.replaceChildren(titleInput, detailsInput);
+    actionsDiv.replaceChildren(
+        createActionButton('Save', 'save-btn', { id, completed }),
+        createActionButton('Cancel', 'cancel-btn')
+    );
+}
+
+function createActionButton(label, className, data = {}) {
+    const button = document.createElement('button');
+    button.textContent = label;
+    button.className = className;
+
+    Object.entries(data).forEach(([key, value]) => {
+        button.dataset[key] = String(value);
+    });
+
+    return button;
 }
 
 // Render todos in the DOM
 function renderTodos(todos) {
-    todoList.innerHTML = '';
+    todoList.replaceChildren();
+
     todos.forEach(todo => {
         const todoElement = document.createElement('div');
         todoElement.className = `todo-item ${todo.completed ? 'completed' : ''}`;
-        
-        todoElement.innerHTML = `
-            <div class="todo-content">
-                <div class="todo-title">${todo.title}</div>
-                <div class="todo-details">${todo.details.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
-            </div>
-            <div class="todo-actions">
-                <button class="toggle-btn" data-id="${todo.id}" data-title="${todo.title}" data-details="${todo.details}" data-completed="${todo.completed}">
-                    ${todo.completed ? 'Undo' : 'Complete'}
-                </button>
-                <button class="edit-btn" data-id="${todo.id}" data-title="${todo.title}" data-details="${todo.details}" data-completed="${todo.completed}">
-                    Edit
-                </button>
-                <button class="delete-btn" data-id="${todo.id}">Delete</button>
-            </div>
-        `;
-        
+
+        const content = document.createElement('div');
+        content.className = 'todo-content';
+
+        const title = document.createElement('div');
+        title.className = 'todo-title';
+        title.textContent = todo.title;
+
+        const details = document.createElement('div');
+        details.className = 'todo-details';
+        details.textContent = todo.details;
+
+        const actions = document.createElement('div');
+        actions.className = 'todo-actions';
+        const todoData = {
+            id: todo.id,
+            title: todo.title,
+            details: todo.details,
+            completed: todo.completed,
+        };
+        actions.append(
+            createActionButton(todo.completed ? 'Undo' : 'Complete', 'toggle-btn', todoData),
+            createActionButton('Edit', 'edit-btn', todoData),
+            createActionButton('Delete', 'delete-btn', { id: todo.id })
+        );
+
+        content.append(title, details);
+        todoElement.append(content, actions);
         todoList.appendChild(todoElement);
     });
 }

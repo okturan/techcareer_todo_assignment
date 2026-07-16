@@ -12,37 +12,41 @@
     <groupId>com.okturan</groupId>
     <artifactId>techcareer_java_todo_assignment</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>techcareer_java_todo_assignment</name>
-    <description>techcareer_java_todo_assignment</description>
-    <url/>
+    <name>Techcareer Todo Assignment</name>
+    <description>Spring Boot todo application with a REST API, PostgreSQL persistence, browser UI, and Docker Compose development environment.</description>
+    <url>https://github.com/okturan/techcareer_todo_assignment</url>
     <licenses>
-        <license/>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/license/mit</url>
+            <distribution>repo</distribution>
+        </license>
     </licenses>
     <developers>
-        <developer/>
+        <developer>
+            <name>Okan Erturan</name>
+            <url>https://github.com/okturan</url>
+        </developer>
     </developers>
     <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
+        <connection>scm:git:https://github.com/okturan/techcareer_todo_assignment.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/okturan/techcareer_todo_assignment.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/okturan/techcareer_todo_assignment</url>
     </scm>
     <properties>
         <java.version>17</java.version>
+        <lombok.version>1.18.46</lombok.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.0.3</version>
+            <version>2.6.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jdbc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -79,11 +83,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
@@ -96,6 +95,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
+                    <parameters>true</parameters>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
