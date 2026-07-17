@@ -119,7 +119,10 @@ class TodoApiIntegrationTests {
 
         mockMvc.perform(get("/index.html"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("<title>Todo App</title>")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<title>Todo App</title>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<label for=\"title\">Title</label>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("aria-live=\"polite\"")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("href=\"/swagger-ui/index.html\"")));
 
         mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())

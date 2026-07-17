@@ -4,15 +4,32 @@ const API_BASE_URL = '/api/todos';
 // DOM elements
 const todoForm = document.getElementById('todoForm');
 const todoList = document.getElementById('todoList');
+const todoCount = document.getElementById('todoCount');
+const appStatus = document.getElementById('appStatus');
+
+function setStatus(message, tone = 'neutral') {
+    appStatus.textContent = message;
+    appStatus.dataset.tone = tone;
+}
+
+async function errorMessage(response, fallback) {
+    const message = await response.text();
+    return message || fallback;
+}
 
 // Fetch all todos
 async function fetchTodos() {
     try {
         const response = await fetch(API_BASE_URL);
+        if (!response.ok) {
+            throw new Error(await errorMessage(response, 'Unable to load tasks'));
+        }
         const todos = await response.json();
         renderTodos(todos);
+        setStatus(todos.length ? 'Tasks are up to date.' : 'Ready for your first task.');
     } catch (error) {
         console.error('Error fetching todos:', error);
+        setStatus(error.message || 'Unable to load tasks.', 'error');
     }
 }
 
@@ -27,12 +44,15 @@ async function createTodo(title, details) {
             body: JSON.stringify({ title, details }),
         });
         if (response.ok) {
-            fetchTodos();
+            await fetchTodos();
+            setStatus('Task added.', 'success');
             return true;
         }
+        setStatus(await errorMessage(response, 'Unable to add task.'), 'error');
         return false;
     } catch (error) {
         console.error('Error creating todo:', error);
+        setStatus('Unable to reach the API.', 'error');
         return false;
     }
 }
@@ -52,10 +72,14 @@ async function toggleTodo(id, title, details, completed) {
             }),
         });
         if (response.ok) {
-            fetchTodos();
+            await fetchTodos();
+            setStatus(completed ? 'Task reopened.' : 'Task completed.', 'success');
+        } else {
+            setStatus(await errorMessage(response, 'Unable to update task.'), 'error');
         }
     } catch (error) {
         console.error('Error toggling todo:', error);
+        setStatus('Unable to reach the API.', 'error');
     }
 }
 
@@ -74,12 +98,13 @@ async function editTodo(id, title, details, completed) {
             }),
         });
         if (response.ok) {
-            fetchTodos();
             return true;
         }
+        setStatus(await errorMessage(response, 'Unable to save changes.'), 'error');
         return false;
     } catch (error) {
         console.error('Error editing todo:', error);
+        setStatus('Unable to reach the API.', 'error');
         return false;
     }
 }
@@ -91,10 +116,14 @@ async function deleteTodo(id) {
             method: 'DELETE',
         });
         if (response.ok) {
-            fetchTodos();
+            await fetchTodos();
+            setStatus('Task deleted.', 'success');
+        } else {
+            setStatus(await errorMessage(response, 'Unable to delete task.'), 'error');
         }
     } catch (error) {
         console.error('Error deleting todo:', error);
+        setStatus('Unable to reach the API.', 'error');
     }
 }
 
@@ -108,11 +137,13 @@ function switchToEditMode(todoElement, id, title, details, completed) {
     titleInput.className = 'edit-input';
     titleInput.id = `edit-title-${id}`;
     titleInput.value = title;
+    titleInput.setAttribute('aria-label', `Edit title for ${title}`);
 
     const detailsInput = document.createElement('textarea');
     detailsInput.className = 'edit-input details-textarea';
     detailsInput.id = `edit-details-${id}`;
     detailsInput.value = details;
+    detailsInput.setAttribute('aria-label', `Edit details for ${title}`);
 
     contentDiv.replaceChildren(titleInput, detailsInput);
     actionsDiv.replaceChildren(
@@ -130,16 +161,34 @@ function createActionButton(label, className, data = {}) {
         button.dataset[key] = String(value);
     });
 
+    if (data.title) {
+        button.setAttribute('aria-label', `${label} ${data.title}`);
+    }
+
     return button;
 }
 
 // Render todos in the DOM
 function renderTodos(todos) {
     todoList.replaceChildren();
+    todoCount.textContent = `${todos.length} ${todos.length === 1 ? 'task' : 'tasks'}`;
+
+    if (todos.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        const emptyTitle = document.createElement('strong');
+        emptyTitle.textContent = 'No tasks yet';
+        const emptyMessage = document.createElement('span');
+        emptyMessage.textContent = 'Add one above to exercise the browser UI and REST API.';
+        emptyState.append(emptyTitle, emptyMessage);
+        todoList.append(emptyState);
+        return;
+    }
 
     todos.forEach(todo => {
         const todoElement = document.createElement('div');
         todoElement.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+        todoElement.setAttribute('role', 'listitem');
 
         const content = document.createElement('div');
         content.className = 'todo-content';
@@ -163,7 +212,7 @@ function renderTodos(todos) {
         actions.append(
             createActionButton(todo.completed ? 'Undo' : 'Complete', 'toggle-btn', todoData),
             createActionButton('Edit', 'edit-btn', todoData),
-            createActionButton('Delete', 'delete-btn', { id: todo.id })
+            createActionButton('Delete', 'delete-btn', { id: todo.id, title: todo.title })
         );
 
         content.append(title, details);
@@ -214,7 +263,8 @@ todoList.addEventListener('click', async (e) => {
                 completed
             );
             if (success) {
-                fetchTodos();
+                await fetchTodos();
+                setStatus('Task updated.', 'success');
             }
         }
     } else if (button.classList.contains('cancel-btn')) {
