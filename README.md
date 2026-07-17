@@ -4,9 +4,18 @@ A compact full-stack todo application built with Spring Boot 3, PostgreSQL, and 
 
 > **Project status:** Complete learning assignment, maintained as a portfolio example. It is not a hosted production service. The repository demonstrates the application locally and verifies its behavior in CI.
 
+## Verified product proof
+
+The browser UI and generated API documentation below were captured from the same local Docker Compose stack. The UI capture follows a successful create against PostgreSQL; the same browser session then completed and edited that persisted item with the expected live feedback. The API view is generated from the running Spring application.
+
+![Todo workspace after a successful task creation, with accessible controls and persisted task state](docs/screenshots/todo-workspace.png)
+
+![Generated Swagger UI showing the documented Todo CRUD operations](docs/screenshots/todo-openapi.png)
+
 ## What it demonstrates
 
 - CRUD operations through both a browser interface and REST endpoints
+- A responsive, keyboard-visible browser UI with labeled fields, live operation feedback, task counts, and empty/error states
 - A controller-service-repository architecture with DTO validation
 - PostgreSQL persistence with an H2-backed integration-test profile
 - Conflict, validation, and missing-resource error handling
